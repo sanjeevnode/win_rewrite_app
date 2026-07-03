@@ -10,11 +10,15 @@ on run
 		set hsInstalled to true
 	end try
 	if not hsInstalled then
-		set choice to button returned of (display dialog "Gemini Rewrite runs on Hammerspoon, which is not installed." & return & return & "Install it first (free), then run this installer again." buttons {"Cancel", "Open Hammerspoon Website"} default button 2 with icon caution)
-		if choice is "Open Hammerspoon Website" then
+		set choice to button returned of (display dialog "Gemini Rewrite runs on Hammerspoon (free, open source), which is not installed." & return & return & "Install it automatically now?" buttons {"Cancel", "Install Hammerspoon"} default button 2 with icon caution)
+		if choice is not "Install Hammerspoon" then return
+		try
+			do shell script "url=$(curl -fsSL https://api.github.com/repos/Hammerspoon/hammerspoon/releases/latest | grep -o 'https://[^\"]*Hammerspoon-[^\"]*\\.zip' | head -1); test -n \"$url\"; tmp=$(mktemp -d); curl -fsSL -o \"$tmp/hs.zip\" \"$url\"; mkdir -p $HOME/Applications; ditto -xk \"$tmp/hs.zip\" $HOME/Applications/; rm -rf \"$tmp\"; test -d $HOME/Applications/Hammerspoon.app"
+		on error
+			display dialog "Automatic Hammerspoon install failed. Please install it manually from hammerspoon.org and run this installer again." buttons {"Open Website", "OK"} default button 1 with icon stop
 			do shell script "open https://www.hammerspoon.org/"
-		end if
-		return
+			return
+		end try
 	end if
 
 	-- Ask for the API key

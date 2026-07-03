@@ -6,11 +6,12 @@ rewritten by the Gemini API and pasted back in place. Built on
 
 ## Install (DMG — easiest)
 
-1. Install [Hammerspoon](https://www.hammerspoon.org/) if you don't have it
-   (`brew install --cask hammerspoon`).
-2. Download **gemini-rewrite-macos.dmg** from the
+1. Download **gemini-rewrite-macos.dmg** from the
    [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest),
    open it, and double-click **Gemini Rewrite Installer**.
+2. If [Hammerspoon](https://www.hammerspoon.org/) (the engine this tool
+   runs on) isn't installed, the installer offers to download and install
+   it for you automatically.
 3. Enter your API key when prompted — the installer does the rest and
    launches Hammerspoon.
 
