@@ -1,0 +1,7 @@
+# Secrets — never commit real API keys
+config.ini
+key.txt
+
+# Local plan/scratch
+plan.md
+*.bak
