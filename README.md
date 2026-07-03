@@ -6,7 +6,7 @@ original clipboard is restored after each rewrite.
 
 | Platform | Implementation | Get it |
 |----------|----------------|--------|
-| **Windows** | AutoHotkey v2 (compiled, no dependencies) | `GeminiRewriteSetup.exe` from the [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest) — see below |
+| **Windows** | AutoHotkey v2 (compiled, no dependencies), source in [windows/](windows/) | `GeminiRewriteSetup.exe` from the [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest) — see below |
 | **macOS** | [Hammerspoon](https://www.hammerspoon.org/) (Lua) | `gemini-rewrite-macos.zip` from the release, or [macos/](macos/) — see [macos/README.md](macos/README.md) |
 | **Linux (X11)** | bash + xdotool/xclip | `gemini-rewrite-linux.tar.gz` from the release, or [linux/](linux/) — see [linux/README.md](linux/README.md) |
 
@@ -42,8 +42,8 @@ shortcut, and the Apps entry.
 ## Setup from source (alternative)
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/).
-2. Copy `config.example.ini` to `config.ini` and set your Gemini API key
-   and preferred model:
+2. In [windows/](windows/), copy `config.example.ini` to `config.ini` and
+   set your Gemini API key and preferred model:
    ```ini
    [Gemini]
    ApiKey=YOUR_API_KEY_HERE

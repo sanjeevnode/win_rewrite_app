@@ -22,7 +22,10 @@ done
 source "$CONFIG"
 API_KEY="${API_KEY:-}"
 MODEL="${MODEL:-$DEFAULT_MODEL}"
-[ -n "$API_KEY" ] && [ "$API_KEY" != "YOUR_API_KEY_HERE" ] || { note "Set API_KEY in $CONFIG"; exit 1; }
+if [ -z "$API_KEY" ] || [ "$API_KEY" = "YOUR_API_KEY_HERE" ]; then
+  note "Set API_KEY in $CONFIG"
+  exit 1
+fi
 
 # Save current clipboard (may be empty)
 SAVED="$(xclip -selection clipboard -o 2>/dev/null || true)"

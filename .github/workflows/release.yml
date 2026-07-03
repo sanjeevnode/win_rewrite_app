@@ -45,13 +45,13 @@ jobs:
         shell: pwsh
         run: |
           $ver = $env:GITHUB_REF_NAME.TrimStart('v')
-          (Get-Content installer.ahk -Raw) -replace '0\.0\.0-dev', $ver | Set-Content installer.ahk
+          (Get-Content windows\installer.ahk -Raw) -replace '0\.0\.0-dev', $ver | Set-Content windows\installer.ahk
           $ahk2exe = (Get-ChildItem build\tools\ahk2exe -Recurse -Filter Ahk2Exe.exe | Select-Object -First 1).FullName
           $base = (Get-ChildItem build\tools\ahk -Recurse -Filter AutoHotkey64.exe | Select-Object -First 1).FullName
-          & $ahk2exe /silent verbose /in rewrite.ahk /out rewrite.exe /base $base | Out-String
-          if (-not (Test-Path rewrite.exe)) { throw "rewrite.exe compilation failed" }
+          & $ahk2exe /silent verbose /in windows\rewrite.ahk /out windows\rewrite.exe /base $base | Out-String
+          if (-not (Test-Path windows\rewrite.exe)) { throw "rewrite.exe compilation failed" }
           # installer embeds rewrite.exe via FileInstall (must be in same dir)
-          & $ahk2exe /silent verbose /in installer.ahk /out GeminiRewriteSetup.exe /base $base | Out-String
+          & $ahk2exe /silent verbose /in windows\installer.ahk /out GeminiRewriteSetup.exe /base $base | Out-String
           if (-not (Test-Path GeminiRewriteSetup.exe)) { throw "setup compilation failed" }
 
       - name: Package macOS and Linux versions
@@ -67,8 +67,8 @@ jobs:
         run: |
           gh release create $env:GITHUB_REF_NAME `
             GeminiRewriteSetup.exe `
-            rewrite.exe `
-            config.example.ini `
+            windows\rewrite.exe `
+            windows\config.example.ini `
             gemini-rewrite-macos.zip `
             gemini-rewrite-linux.tar.gz `
             --title "Gemini Rewrite $env:GITHUB_REF_NAME" `
