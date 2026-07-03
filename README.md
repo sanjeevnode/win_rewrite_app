@@ -1,9 +1,17 @@
-# Gemini Rewrite Tool (AutoHotkey v2)
+# Gemini Rewrite Tool
 
-Select text in **any** Windows app, press **Ctrl + Win + Alt + C**, and the
-selection is rewritten/paraphrased by the Gemini API and pasted back in place.
-Runs silently in the system tray. Your original clipboard is restored after
-each rewrite.
+Select text in **any** app, press a hotkey, and the selection is
+rewritten/paraphrased by the Gemini API and pasted back in place. Your
+original clipboard is restored after each rewrite.
+
+| Platform | Implementation | Get it |
+|----------|----------------|--------|
+| **Windows** | AutoHotkey v2 (compiled, no dependencies) | `GeminiRewriteSetup.exe` from the [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest) — see below |
+| **macOS** | [Hammerspoon](https://www.hammerspoon.org/) (Lua) | `gemini-rewrite-macos.zip` from the release, or [macos/](macos/) — see [macos/README.md](macos/README.md) |
+| **Linux (X11)** | bash + xdotool/xclip | `gemini-rewrite-linux.tar.gz` from the release, or [linux/](linux/) — see [linux/README.md](linux/README.md) |
+
+The rest of this README covers the **Windows** version. It runs silently in
+the system tray with the default hotkey **Ctrl + Win + Alt + C**.
 
 ## Install (recommended)
 

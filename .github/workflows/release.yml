@@ -9,7 +9,19 @@ permissions:
   contents: write
 
 jobs:
+  lint-unix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint shell and Lua sources
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q shellcheck lua5.4
+          bash -n linux/gemini-rewrite.sh linux/install.sh macos/install.sh
+          shellcheck linux/gemini-rewrite.sh linux/install.sh macos/install.sh
+          luac5.4 -p macos/gemini-rewrite.lua
+
   build-release:
+    needs: lint-unix
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -42,6 +54,12 @@ jobs:
           & $ahk2exe /silent verbose /in installer.ahk /out GeminiRewriteSetup.exe /base $base | Out-String
           if (-not (Test-Path GeminiRewriteSetup.exe)) { throw "setup compilation failed" }
 
+      - name: Package macOS and Linux versions
+        shell: pwsh
+        run: |
+          Compress-Archive -Path macos\* -DestinationPath gemini-rewrite-macos.zip
+          tar -czf gemini-rewrite-linux.tar.gz -C linux gemini-rewrite.sh install.sh README.md
+
       - name: Create GitHub release
         shell: pwsh
         env:
@@ -51,5 +69,7 @@ jobs:
             GeminiRewriteSetup.exe `
             rewrite.exe `
             config.example.ini `
+            gemini-rewrite-macos.zip `
+            gemini-rewrite-linux.tar.gz `
             --title "Gemini Rewrite $env:GITHUB_REF_NAME" `
             --generate-notes
