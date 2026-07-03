@@ -4,40 +4,36 @@ Select text in any app, press **Ctrl + Alt + Cmd + C**, and the selection is
 rewritten by the Gemini API and pasted back in place. Built on
 [Hammerspoon](https://www.hammerspoon.org/).
 
-## Install (DMG — easiest)
+## Install (one command — recommended)
 
-1. Download **gemini-rewrite-macos.dmg** from the
-   [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest),
-   open it, and double-click **Gemini Rewrite Installer**.
-2. If [Hammerspoon](https://www.hammerspoon.org/) (the engine this tool
-   runs on) isn't installed, the installer offers to download and install
-   it for you automatically.
-3. Enter your API key when prompted — the installer does the rest and
-   launches Hammerspoon.
+Paste this in Terminal:
 
-Note: the installer app is not notarized with Apple, so on first open
-macOS will block it. Right-click the app → **Open** → **Open**, or allow it
-under System Settings → Privacy & Security. If macOS says the app is
-"damaged", clear the download quarantine flag and reopen:
+```sh
+curl -fsSL https://raw.githubusercontent.com/sanjeevnode/win_rewrite_app/master/macos/install.sh | bash
+```
+
+It installs Hammerspoon automatically if missing, prompts for your Gemini
+API key (free at https://aistudio.google.com/apikey), and wires everything
+up. Then grant Hammerspoon **Accessibility** permission when asked
+(System Settings → Privacy & Security → Accessibility — required to send
+Cmd+C/Cmd+V) and choose **Reload Config** from its menu-bar icon.
+
+## Install (DMG)
+
+A `gemini-rewrite-macos.dmg` with a double-click installer app ships with
+each [release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest),
+but because it is not notarized with Apple, modern macOS (Sequoia and
+later) refuses to open it, claiming the app is "damaged". To use it anyway,
+clear the download quarantine flag first:
 
 ```sh
 xattr -d com.apple.quarantine ~/Downloads/gemini-rewrite-macos.dmg
 ```
 
-## Install (script)
-
-```sh
-brew install --cask hammerspoon   # if you don't have it
-./install.sh
-```
-
-The installer prompts for your Gemini API key (free at
-https://aistudio.google.com/apikey), copies the script into
-`~/.hammerspoon/`, and wires it into your Hammerspoon `init.lua`.
-
-Then open Hammerspoon, grant it **Accessibility** permission
-(System Settings → Privacy & Security → Accessibility — required to send
-Cmd+C/Cmd+V), and choose **Reload Config** from its menu-bar icon.
+then open the DMG and double-click **Gemini Rewrite Installer**. If you'd
+rather not touch Terminal at all there is no way around notarization —
+use the one-command install above instead (it's also Terminal, but one
+line).
 
 ## Configure
 

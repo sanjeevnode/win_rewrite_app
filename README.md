@@ -7,7 +7,7 @@ original clipboard is restored after each rewrite.
 | Platform | Implementation | Get it |
 |----------|----------------|--------|
 | **Windows** | AutoHotkey v2 (compiled, no dependencies), source in [windows/](windows/) | `GeminiRewriteSetup.exe` from the [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest) — see below |
-| **macOS** | [Hammerspoon](https://www.hammerspoon.org/) (Lua) | `gemini-rewrite-macos.dmg` (double-click installer) from the [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest) — see [macos/README.md](macos/README.md) |
+| **macOS** | [Hammerspoon](https://www.hammerspoon.org/) (Lua) | One-line Terminal install (see [macos/README.md](macos/README.md)); DMG also available but needs a quarantine workaround (unsigned) |
 | **Linux (X11)** | bash + xdotool/xclip | `gemini-rewrite-linux.tar.gz` from the release, or [linux/](linux/) — see [linux/README.md](linux/README.md) |
 
 The rest of this README covers the **Windows** version. It runs silently in
