@@ -11,8 +11,14 @@ A_IconTip := "Gemini Rewrite (Ctrl+Win+Alt+C)"
 TraySetIcon("shell32.dll", 172)  ; pencil-ish icon
 
 CONFIG_FILE := A_ScriptDir "\config.ini"
-API_MODEL   := "gemini-3.1-flash-lite"
+DEFAULT_MODEL := "gemini-3.1-flash-lite"
 HTTP_TIMEOUT_S := 15
+
+ReadModel() {
+    global CONFIG_FILE, DEFAULT_MODEL
+    m := Trim(IniRead(CONFIG_FILE, "Gemini", "Model", DEFAULT_MODEL))
+    return m = "" ? DEFAULT_MODEL : m
+}
 
 ; Read API key at startup (re-read on each use too, so key swaps work live)
 if (ReadApiKey() = "")
@@ -92,8 +98,8 @@ RewriteSelection() {
 }
 
 CallGemini(apiKey, text) {
-    global API_MODEL, HTTP_TIMEOUT_S
-    url := "https://generativelanguage.googleapis.com/v1beta/models/" API_MODEL ":generateContent"
+    global HTTP_TIMEOUT_S
+    url := "https://generativelanguage.googleapis.com/v1beta/models/" ReadModel() ":generateContent"
 
     prompt := "Rewrite/paraphrase the following text. Preserve the original meaning, tone, and approximate length. Return ONLY the rewritten text with no extra commentary, no quotation marks wrapping it, and no markdown formatting:`n`n" text
     body := '{"contents":[{"parts":[{"text":' JsonStr(prompt) '}]}],"generationConfig":{"thinkingConfig":{"thinkingBudget":0}}}'

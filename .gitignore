@@ -5,3 +5,7 @@ key.txt
 # Local plan/scratch
 plan.md
 *.bak
+
+# Build artifacts
+*.exe
+build/

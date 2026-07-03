@@ -5,15 +5,30 @@ selection is rewritten/paraphrased by the Gemini API and pasted back in place.
 Runs silently in the system tray. Your original clipboard is restored after
 each rewrite.
 
-## Setup
+## Install (recommended)
+
+1. Download **GeminiRewriteSetup.exe** from the
+   [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest).
+2. Run it. Enter your Gemini API key (free at
+   https://aistudio.google.com/apikey), pick a default model, and choose
+   whether to start on login.
+3. Done — the tool installs to `%LocalAppData%\GeminiRewrite` and starts
+   immediately. No AutoHotkey installation required.
+
+To change the key or model later, edit
+`%LocalAppData%\GeminiRewrite\config.ini` — changes apply on the next
+hotkey press, no restart needed.
+
+## Setup from source (alternative)
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/).
-2. Copy `config.example.ini` to `config.ini` and set your Gemini API key:
+2. Copy `config.example.ini` to `config.ini` and set your Gemini API key
+   and preferred model:
    ```ini
    [Gemini]
    ApiKey=YOUR_API_KEY_HERE
+   Model=gemini-3.1-flash-lite
    ```
-   Get a free key at https://aistudio.google.com/apikey
 3. Double-click `rewrite.ahk` to run it.
 
 ## Usage
@@ -49,6 +64,12 @@ at every login:
 2. Place a shortcut to `rewrite.ahk` in the folder that opens.
 
 To undo auto-start, delete that shortcut.
+
+## Releases / versioning
+
+Releases are built automatically by GitHub Actions: pushing a tag like
+`v1.2.0` compiles `rewrite.exe` and `GeminiRewriteSetup.exe` with Ahk2Exe
+and publishes them as a GitHub release with generated notes.
 
 ## Known limitations
 
