@@ -51,8 +51,9 @@ jobs:
           & $ahk2exe /silent verbose /in windows\rewrite.ahk /out windows\rewrite.exe /base $base | Out-String
           if (-not (Test-Path windows\rewrite.exe)) { throw "rewrite.exe compilation failed" }
           # installer embeds rewrite.exe via FileInstall (must be in same dir)
+          # Ahk2Exe resolves a relative /out against the script's directory
           & $ahk2exe /silent verbose /in windows\installer.ahk /out GeminiRewriteSetup.exe /base $base | Out-String
-          if (-not (Test-Path GeminiRewriteSetup.exe)) { throw "setup compilation failed" }
+          if (-not (Test-Path windows\GeminiRewriteSetup.exe)) { throw "setup compilation failed" }
 
       - name: Package macOS and Linux versions
         shell: pwsh
@@ -66,7 +67,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create $env:GITHUB_REF_NAME `
-            GeminiRewriteSetup.exe `
+            windows\GeminiRewriteSetup.exe `
             windows\rewrite.exe `
             windows\config.example.ini `
             gemini-rewrite-macos.zip `
