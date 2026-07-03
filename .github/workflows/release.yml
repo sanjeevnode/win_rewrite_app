@@ -32,6 +32,8 @@ jobs:
       - name: Compile rewrite.exe and setup.exe
         shell: pwsh
         run: |
+          $ver = $env:GITHUB_REF_NAME.TrimStart('v')
+          (Get-Content installer.ahk -Raw) -replace '0\.0\.0-dev', $ver | Set-Content installer.ahk
           $ahk2exe = (Get-ChildItem build\tools\ahk2exe -Recurse -Filter Ahk2Exe.exe | Select-Object -First 1).FullName
           $base = (Get-ChildItem build\tools\ahk -Recurse -Filter AutoHotkey64.exe | Select-Object -First 1).FullName
           & $ahk2exe /silent verbose /in rewrite.ahk /out rewrite.exe /base $base | Out-String

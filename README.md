@@ -17,9 +17,19 @@ each rewrite.
 3. Done — the tool installs to `%LocalAppData%\GeminiRewrite` and starts
    immediately. No AutoHotkey installation required.
 
-To change the key or model later, edit
-`%LocalAppData%\GeminiRewrite\config.ini` — changes apply on the next
-hotkey press, no restart needed.
+To change the API key, model, or hotkey later, **click the tray icon** —
+a Settings window opens. The tray right-click menu also offers
+**Restart**, **Uninstall**, and **Exit**.
+
+## Uninstall
+
+Either of:
+- **Settings > Apps > Installed apps** (or Control Panel > Programs) →
+  **Gemini Rewrite** → Uninstall, or
+- right-click the tray icon → **Uninstall**.
+
+Both stop the app and remove the installed files, settings, startup
+shortcut, and the Apps entry.
 
 ## Setup from source (alternative)
 

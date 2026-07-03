@@ -7,14 +7,127 @@ Persistent
 ; Hotkey: Ctrl+Win+Alt+C  — rewrites the selected text via Gemini
 ; ---------------------------------------------------------------
 
-TraySetIcon("shell32.dll", 172)  ; pencil-ish icon
-
 CONFIG_FILE := A_ScriptDir "\config.ini"
 DEFAULT_MODEL := "gemini-3.1-flash-lite"
 DEFAULT_HOTKEY := "^#!c"  ; Ctrl+Win+Alt+C
 HTTP_TIMEOUT_S := 15
+UNINST_REG := "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\GeminiRewrite"
+MODELS := ["gemini-3.1-flash-lite", "gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"]
+HOTKEYS := Map(
+    "Ctrl + Win + Alt + C", "^#!c",
+    "Ctrl + Alt + R",       "^!r",
+    "Ctrl + Shift + Q",     "^+q",
+    "Win + Shift + Z",      "#+z",
+    "Ctrl + Alt + Space",   "^!Space")
+HOTKEY_LABELS := ["Ctrl + Win + Alt + C", "Ctrl + Alt + R", "Ctrl + Shift + Q", "Win + Shift + Z", "Ctrl + Alt + Space"]
+CURRENT_HOTKEY := ""
+
+if (A_Args.Length && A_Args[1] = "/uninstall") {
+    DoUninstall()
+    ExitApp
+}
+
+TraySetIcon("shell32.dll", 172)  ; pencil-ish icon
+
+; --- Tray menu: Settings / Restart / Uninstall / Exit ---
+A_TrayMenu.Delete()
+A_TrayMenu.Add("Settings…", ShowSettings)
+A_TrayMenu.Add("Restart", (*) => Reload())
+A_TrayMenu.Add()
+A_TrayMenu.Add("Uninstall", TrayUninstall)
+A_TrayMenu.Add("Exit", (*) => ExitApp())
+A_TrayMenu.Default := "Settings…"
+OnMessage(0x404, TrayClick)  ; single left-click on tray icon opens Settings
+
+TrayClick(wParam, lParam, *) {
+    if (lParam = 0x202)  ; WM_LBUTTONUP
+        SetTimer(() => ShowSettings(), -50)
+}
 
 RegisterRewriteHotkey()
+
+; --- Settings window ---
+ShowSettings(*) {
+    global
+    static sg := ""
+    if (sg is Gui) {
+        sg.Show()
+        return
+    }
+    sg := Gui("+AlwaysOnTop", "Gemini Rewrite — Settings")
+    sg.SetFont("s10", "Segoe UI")
+    sg.AddText(, "Gemini API key:")
+    edKey := sg.AddEdit("xm w340", ReadApiKey())
+    sg.AddText("xm y+10", "Model:")
+    curModel := ReadModel()
+    modelList := MODELS.Clone()
+    idx := 0
+    for i, m in modelList
+        if (m = curModel)
+            idx := i
+    if !idx {
+        modelList.Push(curModel), idx := modelList.Length
+    }
+    ddModel := sg.AddDropDownList("xm w340 Choose" idx, modelList)
+    sg.AddText("xm y+10", "Hotkey:")
+    hkList := HOTKEY_LABELS.Clone()
+    idx := 0
+    for i, lbl in hkList
+        if (HOTKEYS[lbl] = CURRENT_HOTKEY)
+            idx := i
+    if !idx {
+        hkList.Push(HotkeyToText(CURRENT_HOTKEY)), idx := hkList.Length
+    }
+    ddHotkey := sg.AddDropDownList("xm w340 Choose" idx, hkList)
+    btnSave := sg.AddButton("xm y+16 w100 Default", "Save")
+    btnCancel := sg.AddButton("x+10 w100", "Cancel")
+    btnSave.OnEvent("Click", SaveSettings)
+    btnCancel.OnEvent("Click", (*) => CloseSettings())
+    sg.OnEvent("Close", (*) => CloseSettings())
+    sg.Show()
+
+    SaveSettings(*) {
+        k := Trim(edKey.Value)
+        if (k = "") {
+            MsgBox("API key cannot be empty.", "Gemini Rewrite", "Iconx")
+            return
+        }
+        IniWrite(k, CONFIG_FILE, "Gemini", "ApiKey")
+        IniWrite(ddModel.Text, CONFIG_FILE, "Gemini", "Model")
+        hk := HOTKEYS.Has(ddHotkey.Text) ? HOTKEYS[ddHotkey.Text] : CURRENT_HOTKEY
+        IniWrite(hk, CONFIG_FILE, "Gemini", "Hotkey")
+        RegisterRewriteHotkey()
+        CloseSettings()
+        Notify("Gemini Rewrite", "Settings saved ✓")
+    }
+    CloseSettings() {
+        sg.Destroy()
+        sg := ""
+    }
+}
+
+TrayUninstall(*) {
+    res := MsgBox("Uninstall Gemini Rewrite?`n`nThis removes the app, its settings, the startup shortcut, and the Control Panel entry.", "Gemini Rewrite", "YesNo Icon?")
+    if (res = "Yes")
+        DoUninstall()
+}
+
+DoUninstall() {
+    global UNINST_REG
+    ; Kill any other running instance of the app (not this process)
+    myPid := DllCall("GetCurrentProcessId")
+    try RunWait('taskkill /f /im rewrite.exe /fi "PID ne ' myPid '"', , "Hide")
+    ; Remove startup shortcut and Control Panel entry
+    lnk := A_Startup "\Gemini Rewrite.lnk"
+    if FileExist(lnk)
+        try FileDelete(lnk)
+    try RegDeleteKey(UNINST_REG)
+    ; Delete the install folder after this process exits (an exe can't
+    ; delete itself while running)
+    if A_IsCompiled
+        Run(A_ComSpec ' /c timeout /t 2 /nobreak >nul & rd /s /q "' A_ScriptDir '"', , "Hide")
+    ExitApp
+}
 
 ReadModel() {
     global CONFIG_FILE, DEFAULT_MODEL
@@ -41,10 +154,12 @@ Notify(title, msg, kind := "info") {
 }
 
 RegisterRewriteHotkey() {
-    global CONFIG_FILE, DEFAULT_HOTKEY
+    global CONFIG_FILE, DEFAULT_HOTKEY, CURRENT_HOTKEY
     hk := Trim(IniRead(CONFIG_FILE, "Gemini", "Hotkey", DEFAULT_HOTKEY))
     if (hk = "")
         hk := DEFAULT_HOTKEY
+    if (CURRENT_HOTKEY != "" && CURRENT_HOTKEY != hk)
+        try Hotkey(CURRENT_HOTKEY, "Off")
     try {
         Hotkey(hk, (*) => RewriteSelection())
     } catch {
@@ -55,6 +170,7 @@ RegisterRewriteHotkey() {
     ; Conflict check: is this combo already registered system-wide by another app?
     if IsHotkeyTakenByOtherApp(hk)
         Notify("Gemini Rewrite", "Note: " HotkeyToText(hk) " is also registered by another application. Gemini Rewrite will intercept it while running.", "warn")
+    CURRENT_HOTKEY := hk
     A_IconTip := "Gemini Rewrite (" HotkeyToText(hk) ")"
 }
 

@@ -9,6 +9,8 @@
 ; ---------------------------------------------------------------
 
 INSTALL_DIR := EnvGet("LOCALAPPDATA") "\GeminiRewrite"
+VERSION := "0.0.0-dev"  ; replaced with the tag version by the release workflow
+UNINST_REG := "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\GeminiRewrite"
 MODELS := ["gemini-3.1-flash-lite", "gemini-3.5-flash", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"]
 ; Friendly label -> AHK hotkey syntax
 HOTKEYS := Map(
@@ -101,6 +103,18 @@ DoInstall(*) {
             FileCreateShortcut(INSTALL_DIR "\rewrite.exe", lnk, INSTALL_DIR)
         else if FileExist(lnk)
             FileDelete(lnk)
+
+        ; Register in Control Panel / Settings > Apps (per-user, no admin needed)
+        RegWrite("Gemini Rewrite", "REG_SZ", UNINST_REG, "DisplayName")
+        RegWrite(VERSION, "REG_SZ", UNINST_REG, "DisplayVersion")
+        RegWrite("sanjeevnode", "REG_SZ", UNINST_REG, "Publisher")
+        RegWrite(INSTALL_DIR, "REG_SZ", UNINST_REG, "InstallLocation")
+        RegWrite(INSTALL_DIR "\rewrite.exe", "REG_SZ", UNINST_REG, "DisplayIcon")
+        RegWrite('"' INSTALL_DIR '\rewrite.exe" /uninstall', "REG_SZ", UNINST_REG, "UninstallString")
+        RegWrite("https://github.com/sanjeevnode/win_rewrite_app", "REG_SZ", UNINST_REG, "URLInfoAbout")
+        RegWrite(1, "REG_DWORD", UNINST_REG, "NoModify")
+        RegWrite(1, "REG_DWORD", UNINST_REG, "NoRepair")
+        RegWrite(1300, "REG_DWORD", UNINST_REG, "EstimatedSize")  ; KB
 
         Run(INSTALL_DIR "\rewrite.exe", INSTALL_DIR)
     } catch Error as e {
