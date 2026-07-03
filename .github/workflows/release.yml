@@ -85,6 +85,9 @@ jobs:
         run: |
           osacompile -o "Gemini Rewrite Installer.app" macos/installer.applescript
           cp macos/gemini-rewrite.lua "Gemini Rewrite Installer.app/Contents/Resources/"
+          # Ad-hoc sign: without any signature, Apple Silicon reports the
+          # downloaded app as "damaged" instead of offering to open it
+          codesign --force --deep -s - "Gemini Rewrite Installer.app"
           mkdir dmgroot
           cp -R "Gemini Rewrite Installer.app" dmgroot/
           cp macos/README.md dmgroot/README.md

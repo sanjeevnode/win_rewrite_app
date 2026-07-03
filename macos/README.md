@@ -15,8 +15,14 @@ rewritten by the Gemini API and pasted back in place. Built on
 3. Enter your API key when prompted — the installer does the rest and
    launches Hammerspoon.
 
-Note: the installer app is unsigned, so on first open macOS may block it —
-right-click → Open (or allow it under System Settings → Privacy & Security).
+Note: the installer app is not notarized with Apple, so on first open
+macOS will block it. Right-click the app → **Open** → **Open**, or allow it
+under System Settings → Privacy & Security. If macOS says the app is
+"damaged", clear the download quarantine flag and reopen:
+
+```sh
+xattr -d com.apple.quarantine ~/Downloads/gemini-rewrite-macos.dmg
+```
 
 ## Install (script)
 
