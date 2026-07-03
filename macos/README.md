@@ -4,7 +4,20 @@ Select text in any app, press **Ctrl + Alt + Cmd + C**, and the selection is
 rewritten by the Gemini API and pasted back in place. Built on
 [Hammerspoon](https://www.hammerspoon.org/).
 
-## Install
+## Install (DMG — easiest)
+
+1. Install [Hammerspoon](https://www.hammerspoon.org/) if you don't have it
+   (`brew install --cask hammerspoon`).
+2. Download **gemini-rewrite-macos.dmg** from the
+   [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest),
+   open it, and double-click **Gemini Rewrite Installer**.
+3. Enter your API key when prompted — the installer does the rest and
+   launches Hammerspoon.
+
+Note: the installer app is unsigned, so on first open macOS may block it —
+right-click → Open (or allow it under System Settings → Privacy & Security).
+
+## Install (script)
 
 ```sh
 brew install --cask hammerspoon   # if you don't have it

@@ -74,3 +74,23 @@ jobs:
             gemini-rewrite-linux.tar.gz `
             --title "Gemini Rewrite $env:GITHUB_REF_NAME" `
             --generate-notes
+
+  macos-dmg:
+    needs: build-release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build installer app and DMG
+        run: |
+          osacompile -o "Gemini Rewrite Installer.app" macos/installer.applescript
+          cp macos/gemini-rewrite.lua "Gemini Rewrite Installer.app/Contents/Resources/"
+          mkdir dmgroot
+          cp -R "Gemini Rewrite Installer.app" dmgroot/
+          cp macos/README.md dmgroot/README.md
+          hdiutil create -volname "Gemini Rewrite" -srcfolder dmgroot -ov -format UDZO gemini-rewrite-macos.dmg
+
+      - name: Upload DMG to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" gemini-rewrite-macos.dmg --clobber
