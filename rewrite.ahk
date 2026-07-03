@@ -7,12 +7,14 @@ Persistent
 ; Hotkey: Ctrl+Win+Alt+C  — rewrites the selected text via Gemini
 ; ---------------------------------------------------------------
 
-A_IconTip := "Gemini Rewrite (Ctrl+Win+Alt+C)"
 TraySetIcon("shell32.dll", 172)  ; pencil-ish icon
 
 CONFIG_FILE := A_ScriptDir "\config.ini"
 DEFAULT_MODEL := "gemini-3.1-flash-lite"
+DEFAULT_HOTKEY := "^#!c"  ; Ctrl+Win+Alt+C
 HTTP_TIMEOUT_S := 15
+
+RegisterRewriteHotkey()
 
 ReadModel() {
     global CONFIG_FILE, DEFAULT_MODEL
@@ -38,9 +40,56 @@ Notify(title, msg, kind := "info") {
     TrayTip(msg, title, opts + 16)  ; +16 = don't play sound
 }
 
-^#!c:: RewriteSelection()
+RegisterRewriteHotkey() {
+    global CONFIG_FILE, DEFAULT_HOTKEY
+    hk := Trim(IniRead(CONFIG_FILE, "Gemini", "Hotkey", DEFAULT_HOTKEY))
+    if (hk = "")
+        hk := DEFAULT_HOTKEY
+    try {
+        Hotkey(hk, (*) => RewriteSelection())
+    } catch {
+        Notify("Gemini Rewrite", "Invalid hotkey '" hk "' in config.ini — using default Ctrl+Win+Alt+C.", "warn")
+        hk := DEFAULT_HOTKEY
+        Hotkey(hk, (*) => RewriteSelection())
+    }
+    ; Conflict check: is this combo already registered system-wide by another app?
+    if IsHotkeyTakenByOtherApp(hk)
+        Notify("Gemini Rewrite", "Note: " HotkeyToText(hk) " is also registered by another application. Gemini Rewrite will intercept it while running.", "warn")
+    A_IconTip := "Gemini Rewrite (" HotkeyToText(hk) ")"
+}
 
-RewriteSelection() {
+; Try to register the combo via the Win32 RegisterHotKey API — if that fails,
+; some other application already owns it globally.
+IsHotkeyTakenByOtherApp(hk) {
+    mods := 0
+    key := hk
+    while InStr("^!+#", SubStr(key, 1, 1)) {
+        c := SubStr(key, 1, 1)
+        mods |= (c = "^") ? 0x2 : (c = "!") ? 0x1 : (c = "+") ? 0x4 : 0x8
+        key := SubStr(key, 2)
+    }
+    vk := GetKeyVK(key)
+    if (!vk || !mods)
+        return false
+    if DllCall("RegisterHotKey", "ptr", 0, "int", 0xB33F, "uint", mods, "uint", vk) {
+        DllCall("UnregisterHotKey", "ptr", 0, "int", 0xB33F)
+        return false
+    }
+    return true
+}
+
+HotkeyToText(hk) {
+    out := ""
+    key := hk
+    while InStr("^!+#", SubStr(key, 1, 1)) {
+        c := SubStr(key, 1, 1)
+        out .= (c = "^") ? "Ctrl+" : (c = "!") ? "Alt+" : (c = "+") ? "Shift+" : "Win+"
+        key := SubStr(key, 2)
+    }
+    return out StrUpper(key)
+}
+
+RewriteSelection(*) {
     apiKey := ReadApiKey()
     if (apiKey = "") {
         Notify("Gemini Rewrite", "Missing API key. Edit config.ini and add your Gemini API key.", "warn")

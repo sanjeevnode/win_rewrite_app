@@ -10,8 +10,10 @@ each rewrite.
 1. Download **GeminiRewriteSetup.exe** from the
    [latest release](https://github.com/sanjeevnode/win_rewrite_app/releases/latest).
 2. Run it. Enter your Gemini API key (free at
-   https://aistudio.google.com/apikey), pick a default model, and choose
-   whether to start on login.
+   https://aistudio.google.com/apikey), pick a default model and rewrite
+   hotkey, and choose whether to start on login. The installer checks the
+   chosen hotkey for conflicts with other applications live, and warns
+   before installing over a conflicting combo.
 3. Done — the tool installs to `%LocalAppData%\GeminiRewrite` and starts
    immediately. No AutoHotkey installation required.
 
@@ -28,7 +30,12 @@ hotkey press, no restart needed.
    [Gemini]
    ApiKey=YOUR_API_KEY_HERE
    Model=gemini-3.1-flash-lite
+   Hotkey=^#!c   ; ^ = Ctrl, ! = Alt, + = Shift, # = Win
    ```
+   If the configured hotkey is invalid, the script falls back to
+   Ctrl+Win+Alt+C and tells you. If another app has registered the same
+   combo system-wide, you get a tray warning at startup (Gemini Rewrite
+   intercepts the combo while it runs).
 3. Double-click `rewrite.ahk` to run it.
 
 ## Usage
