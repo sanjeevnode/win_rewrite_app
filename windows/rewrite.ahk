@@ -266,7 +266,7 @@ CallGemini(apiKey, text) {
     global HTTP_TIMEOUT_S
     url := "https://generativelanguage.googleapis.com/v1beta/models/" ReadModel() ":generateContent"
 
-    prompt := "Rewrite/paraphrase the following text. Preserve the original meaning, tone, and approximate length. Return ONLY the rewritten text with no extra commentary, no quotation marks wrapping it, and no markdown formatting:`n`n" text
+    prompt := "Rewrite the following text into clear, simple, and natural English. Correct all grammar, spelling, punctuation, and sentence structure while preserving the original meaning, intent, and tone. Replace complex or uncommon words with easy-to-understand alternatives whenever possible. Make the text fluent, readable, and conversational without adding, removing, or changing any information. Return ONLY the rewritten text with no extra commentary, quotation marks, or markdown formatting.:`n`n" text
     body := '{"contents":[{"parts":[{"text":' JsonStr(prompt) '}]}],"generationConfig":{"thinkingConfig":{"thinkingBudget":0}}}'
 
     whr := ComObject("WinHttp.WinHttpRequest.5.1")
