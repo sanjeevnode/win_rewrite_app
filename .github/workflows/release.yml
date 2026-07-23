@@ -2,8 +2,13 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - master
+    paths:
+      - "windows/**"
+      - "macos/**"
+      - "linux/**"
+      - ".github/workflows/release.yml"
 
 permissions:
   contents: write
@@ -23,6 +28,8 @@ jobs:
   build-release:
     needs: lint-unix
     runs-on: windows-latest
+    outputs:
+      ver: ${{ steps.version.outputs.ver }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,9 +49,13 @@ jobs:
           Expand-Archive build\ahk2exe.zip build\tools\ahk2exe
 
       - name: Compile rewrite.exe and setup.exe
+        id: version
         shell: pwsh
         run: |
-          $ver = $env:GITHUB_REF_NAME.TrimStart('v')
+          $ver = "1.4.$env:GITHUB_RUN_NUMBER"
+          $env:VER = "v$ver"
+          "VER=v$ver" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "ver=v$ver" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           (Get-Content windows\installer.ahk -Raw) -replace '0\.0\.0-dev', $ver | Set-Content windows\installer.ahk
           $ahk2exe = (Get-ChildItem build\tools\ahk2exe -Recurse -Filter Ahk2Exe.exe | Select-Object -First 1).FullName
           $base = (Get-ChildItem build\tools\ahk -Recurse -Filter AutoHotkey64.exe | Select-Object -First 1).FullName
@@ -66,13 +77,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create $env:GITHUB_REF_NAME `
+          gh release create $env:VER `
             windows\GeminiRewriteSetup.exe `
             windows\rewrite.exe `
             windows\config.example.ini `
             gemini-rewrite-macos.zip `
             gemini-rewrite-linux.tar.gz `
-            --title "Gemini Rewrite $env:GITHUB_REF_NAME" `
+            --title "Gemini Rewrite $env:VER" `
             --generate-notes
 
   macos-dmg:
@@ -96,4 +107,4 @@ jobs:
       - name: Upload DMG to the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "$GITHUB_REF_NAME" gemini-rewrite-macos.dmg --clobber
+        run: gh release upload "${{ needs.build-release.outputs.ver }}" gemini-rewrite-macos.dmg --clobber
